@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu List</title>
+</head>
+<body>
+    <h1>Menu List</h1>
+    <ul>
+        {% for item in items %}
+            <li>
+                <a href="{% url 'menu_detail' item.id %}">{{ item.name }}</a> - ${{ item.price }}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
