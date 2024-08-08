@@ -3,12 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ресторан</title>
+    <title>Гурман</title>
+    <!-- Подключение шрифта с Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        header h1 {
+            font-size: 24px;
+            color: black;
+            margin-left: 20px; /* Отступ слева для аккуратного расположения */
+            font-weight: 600; /* Более жирное начертание */
+        }
+    </style>
 </head>
 <body>
 
-    {% block content %}
-    {% endblock %}
+    <header class="d-flex align-items-center py-3">
+        <div class="container">
+            <h1 class="m-0">Гурман</h1>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+
 </body>
 </html>

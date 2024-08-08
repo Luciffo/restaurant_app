@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Ваша корзина</h2>
+<ul class="list-group">
+    {% for item in cart_items %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            {{ item.dish.name }} - {{ item.quantity }} шт.
+        </div>
+        <div>
+            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm">Удалить</a>
+        </div>
+    </li>
+    {% empty %}
+    <li class="list-group-item">Ваша корзина пуста.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'checkout' %}" class="btn btn-primary mt-3">Оформить заказ</a>
+{% endblock %}
