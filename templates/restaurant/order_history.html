@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>История заказов</h2>
+
+{% if orders %}
+    <ul class="list-group">
+        {% for order in orders %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                Заказ #{{ order.id }} - {{ order.created_at }} - {{ order.total_price }} грн.
+            </div>
+            <div>
+                <a href="{% url 'repeat_order' order.id %}" class="btn btn-primary btn-sm">Повторить заказ</a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>У вас нет заказов.</p>
+{% endif %}
+{% endblock %}

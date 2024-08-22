@@ -10,27 +10,99 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
         }
+
+        header {
+            background-color: #343a40; /* Тёмный фон */
+            color: white;
+            padding: 20px 0;
+        }
+
         header h1 {
-            font-size: 24px;
-            color: black;
-            margin-left: 20px; /* Отступ слева для аккуратного расположения */
-            font-weight: 600; /* Более жирное начертание */
+            font-size: 28px;
+            text-align: center;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .navbar {
+            background-color: #007bff; /* Синий фон навигации */
+        }
+
+        .navbar-nav .nav-link {
+            color: white;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 40px;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            margin-top: 40px;
         }
     </style>
 </head>
 <body>
 
-    <header class="d-flex align-items-center py-3">
+    <header class="d-flex align-items-center">
         <div class="container">
             <h1 class="m-0">Гурман</h1>
         </div>
     </header>
 
-    <div class="container mt-4">
+    <!-- Навигационная панель -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Гурман</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'menu_list' %}">Меню</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'view_cart' %}">Корзина</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'order_history' %}">Історія замовлень</a> <!-- Новая ссылка -->
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Вийти</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Вхід</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
         {% block content %}
         {% endblock %}
     </div>
 
+    <!-- Футер -->
+    <footer>
+        <p>&copy; 2024 Гурман. Всі права захищені.</p>
+    </footer>
+
+    <!-- Подключение скриптов Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

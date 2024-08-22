@@ -1,11 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Dish, CartItem, Cart, MenuItem
+from .models import Dish, CartItem, Cart, MenuItem, OrderItem, Order
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.http import HttpResponseRedirect
 
 def home(request):
-
     return render(request, 'restaurant/home.html')
 
 def menu_list(request):
@@ -25,9 +25,18 @@ class DishListView(ListView):
 def add_to_cart(request, dish_id):
     dish = get_object_or_404(Dish, id=dish_id)
     cart, created = Cart.objects.get_or_create(user=request.user)
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, dish=dish)
 
-    cart_item.quantity += 1
+    # Получаем существующий CartItem или создаем новый
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, dish=dish)
+    
+    # Если объект был создан, он имеет значение created = True
+    if not created:
+        # Если объект уже существует, увеличиваем количество
+        cart_item.quantity += 1
+    else:
+        # Если объект был только что создан, устанавливаем количество в 1
+        cart_item.quantity = 1
+    
     cart_item.save()
 
     return redirect('view_cart')
@@ -36,7 +45,20 @@ def add_to_cart(request, dish_id):
 def view_cart(request):
     cart = get_object_or_404(Cart, user=request.user)
     cart_items = CartItem.objects.filter(cart=cart)
-    return render(request, 'restaurant/cart.html', {'cart_items': cart_items})
+    
+    # Рассчитать общее количество блюд
+    total_items = sum(item.quantity for item in cart_items)
+    
+    # Рассчитать общую стоимость
+    total_price = sum(item.quantity * item.dish.price for item in cart_items)
+    
+    context = {
+        'cart_items': cart_items,
+        'total_items': total_items,
+        'total_price': total_price
+    }
+    
+    return render(request, 'restaurant/cart.html', context)
 
 @login_required
 def remove_from_cart(request, item_id):
@@ -49,10 +71,32 @@ def checkout(request):
     cart = get_object_or_404(Cart, user=request.user)
     cart_items = CartItem.objects.filter(cart=cart)
 
-    # Здесь вы можете реализовать логику заказа, например, сохранить данные заказа и очистить корзину
-    cart_items.delete()
+    if cart_items.exists():
+        total_price = sum(item.quantity * item.dish.price for item in cart_items)
+        
+        # Создаем заказ
+        order = Order.objects.create(user=request.user, total_price=total_price)
 
-    return render(request, 'restaurant/checkout.html', {'message': 'Заказ оформлен успешно!'})
+        # Переносим товары из корзины в заказ
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                dish=item.dish,
+                quantity=item.quantity,
+                price=item.dish.price
+            )
+
+        # Очищаем корзину
+        cart_items.delete()
+
+        return render(request, 'restaurant/checkout.html', {'message': 'Заказ оформлен успешно!'})
+
+    return redirect('view_cart')
+
+@login_required
+def order_history(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'restaurant/order_history.html', {'orders': orders})
 
 def register(request):
     if request.method == 'POST':
@@ -63,3 +107,35 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
+
+@login_required
+def update_cart(request):
+    cart = get_object_or_404(Cart, user=request.user)
+    
+    # Обрабатываем каждый элемент корзины
+    for item in CartItem.objects.filter(cart=cart):
+        quantity = request.POST.get(f'quantity_{item.id}', 0)
+        if quantity.isdigit() and int(quantity) > 0:
+            item.quantity = int(quantity)
+            item.save()
+    
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+def repeat_order(request, order_id):
+    # Получаем заказ по ID
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Создаем новый заказ на основе предыдущего
+    new_order = Order.objects.create(user=request.user, total_price=order.total_price)
+    
+    # Копируем товары из старого заказа в новый
+    for item in OrderItem.objects.filter(order=order):
+        OrderItem.objects.create(
+            order=new_order,
+            dish=item.dish,
+            quantity=item.quantity,
+            price=item.price
+        )
+    
+    # Перенаправляем на страницу оформления заказа
+    return redirect('view_cart')
