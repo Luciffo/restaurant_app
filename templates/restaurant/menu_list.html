@@ -2,22 +2,33 @@
 
 {% block content %}
 <div class="container-fluid mt-3 px-0">
-    <ul class="list-group" style="padding-left: 0; margin-left: 0;">
-        {% for dish in dishes %}
 
+    <!-- Форма поиска -->
+    <form action="{% url 'menu_list' %}" method="get">
+        <input name="q" type="text" placeholder="Шукайте...">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Поиск</button>
+      </form>
+
+    <!-- Список блюд -->
+    {% if object_list %}
+    <ul class="list-group" style="padding-left: 0; margin-left: 0;">
+        {% for dish in object_list %}
         <li class="list-group-item d-flex justify-content-between align-items-center" style="padding-left: 0;">
             <div class="w-100 d-flex justify-content-start align-items-center">
                 <span>{{ dish.name }}</span>
                 <span class="badge badge-primary ml-2">{{ dish.description }}</span>
                 <span class="badge badge-secondary ml-2">{{ dish.price }}</span>
+                <p class="badge badge-info ml-2">{{ dish.weight }} г</p> <!-- Вывод веса продукта -->
+                <p  class="badge badge-info ml-2"><strong>Ингредиенты:</strong> {{ dish.ingredients }}</p> <!-- Вывод ингредиентов -->
                 <img src="{{ dish.image.url }}" alt="Изображение" style="max-width: 250px;" class="ml-2">
                 <!-- Кнопка для добавления в корзину -->
                 <a href="{% url 'add_to_cart' dish.id %}" class="btn btn-success ml-3">Положить в корзину</a>
             </div>
         </li>
-        {% empty %}
-        <li class="list-group-item" style="padding-left: 0;">Блюд не найдено.</li>
         {% endfor %}
     </ul>
+    {% else %}
+    <p>Блюд не найдено.</p>
+    {% endif %}
 </div>
 {% endblock %}

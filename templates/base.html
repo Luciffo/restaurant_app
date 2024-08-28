@@ -8,6 +8,15 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+        .fixed-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;;
+    padding: 10px;
+    text-align: center;
+}
+
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
@@ -62,7 +71,7 @@
     <!-- Навигационная панель -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">Гурман</a>
+            <a class="navbar-brand" href="{% url 'menu_list' %}">Гурман</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -97,7 +106,8 @@
     </div>
 
     <!-- Футер -->
-    <footer>
+    <footer class='fixed-footer'>
+        
         <p>&copy; 2024 Гурман. Всі права захищені.</p>
     </footer>
 

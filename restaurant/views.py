@@ -4,13 +4,21 @@ from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
+from django.db.models import Q
+from django.contrib.auth.views import LogoutView, LoginView
 
 def home(request):
     return render(request, 'restaurant/home.html')
 
 def menu_list(request):
-    items = MenuItem.objects.all()
-    return render(request, 'restaurant/menu_list.html')
+    query = request.GET.get('search')  # Получаем поисковый запрос из GET-параметра
+    if query:
+        # Ищем блюда, название которых содержит поисковый запрос (без учета регистра)
+        items = MenuItem.objects.filter(Q(name__icontains=query))
+    else:
+        # Если запрос пуст, показываем все блюда
+        items = MenuItem.objects.all()
+    return render(request, 'restaurant/menu_list.html', {'dishes': items})
 
 def menu_detail(request, id):
     item = get_object_or_404(MenuItem, id=id)
@@ -18,8 +26,16 @@ def menu_detail(request, id):
 
 class DishListView(ListView):
     model = Dish
-    context_object_name = "dishes"
     template_name = "restaurant/menu_list.html"
+
+    def get_queryset(self): # новый
+        query= self.request.GET.get('q')
+        if not query:
+            query = ''
+        object_list = Dish.objects.filter(
+            Q(name__icontains=query)
+        )
+        return object_list
 
 @login_required
 def add_to_cart(request, dish_id):
@@ -139,3 +155,11 @@ def repeat_order(request, order_id):
     
     # Перенаправляем на страницу оформления заказа
     return redirect('view_cart')
+
+class CustomLoginView(LoginView):
+    template_name = "registration/login.html"
+    redirect_authenticated_user = True
+
+
+class CustomLogoutView(LogoutView):
+    next_page = "login"

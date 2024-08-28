@@ -11,4 +11,6 @@ urlpatterns = [
     path('orders/', views.order_history, name='order_history'),
     path('cart/update/', views.update_cart, name='update_cart'),
     path('orders/repeat/<int:order_id>/', views.repeat_order, name='repeat_order'),
+    path("login/", views.CustomLoginView.as_view(), name="login"),
+    path("logout/", views.CustomLogoutView.as_view(), name="logout"),
 ]
